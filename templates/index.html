@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Music Review Website</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Music Reviews</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/Let Her Go">Song 1</a></li>
+                    <li><a href="/We Don't Talk Anymore">Song 2</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if not sess.user %}
+                        <li><a data-placement="bottom" data-toggle="popover" data-title="Sign Up" data-container="body" type="button"
+                                data-html="true" href="#" id="signup"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                        <div id="signup-form-content" class="hide">
+                            <form method="POST" role="form">
+                                <div class="form-group">
+                                    <label for="signup_username">Username:</label>
+                                    <input type="text" class="form-control" name="username" id="signup_username">
+                                </div>
+                                <div class="form-group">
+                                    <label for="signup_pwd">Password:</label>
+                                    <input type="password" class="form-control" name="password" id="signup_pwd">
+                                </div>
+                                <button name="signup" type="submit" class="btn btn-default">Submit</button>
+                            </form>
+                        </div>
+                        <li><a data-placement="bottom" data-toggle="popover" data-title="Login" data-container="body" type="button"
+                                data-html="true" href="#" id="login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                        <div id="login-form-content" class="hide">
+                            <form method="POST" role="form">
+                                <div class="form-group">
+                                    <label for="login_username">Username:</label>
+                                    <input type="text" class="form-control" name="username" id="login_username">
+                                </div>
+                                <div class="form-group">
+                                    <label for="login_pwd">Password:</label>
+                                    <input type="password" class="form-control" name="password" id="login_pwd">
+                                </div>
+                                <button name="login" type="submit" class="btn btn-default">Submit</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <li><a data-placement="bottom" data-toggle="popover" data-title="Hi {{ sess.user }}!" data-container="body" type="button"
+                            data-html="true" href="#" id="profile"><span class="glyphicon glyphicon-user"></span> {{ sess.user }}</a></li>
+                        <div id="profile-form-content" class="hide">
+                            <form method="POST" role="form">
+                                <button name="logout" type="submit" class="btn btn-default">Logout</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+        {% if current %}
+        <h2>{{ current.title }}</h2>
+        <div class="text-center">
+            <iframe width="420" height="345" src="{{ current.link }}?autoplay=1" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <br/>
+        <h3>Comments</h3><hr>
+            {% for review in current.reviews %}
+                <div class="media">
+                    <div class="media-left"> <a href="#"> <img alt="64x64" class="media-object" src="https://cdn4.iconfinder.com/data/icons/evil-icons-user-interface/64/avatar-512.png"
+                                data-holder-rendered="true" style="width: 64px; height: 64px;"> </a> </div>
+                    <div class="media-body">
+                        <h4 class="media-heading">{{ review.user }}<br/><small>{{ review.timestamp|ctime }}</small></h4>{{ review.description }}
+                        {% for comment in review.comments %}
+                            <div class="media">
+                                <div class="media-left"> <a href="#"> <img alt="64x64" class="media-object" src="https://cdn4.iconfinder.com/data/icons/evil-icons-user-interface/64/avatar-512.png"
+                                            data-holder-rendered="true" style="width: 64px; height: 64px;"> </a> </div>
+                                <div class="media-body">
+                                    <h4 class="media-heading">{{ comment.user }}</h4> {{ comment.description }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if sess.user %}
+                        <div class="media">
+                            <div class="media-left"> <a href="#"> <img alt="64x64" class="media-object" src="https://cdn4.iconfinder.com/data/icons/evil-icons-user-interface/64/pen-512.png"
+                                        data-holder-rendered="true" style="width: 64px; height: 64px;"> </a> </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">{{ sess.user }}<br/><small>Add a new comment</small></h4>
+                                <form method="POST" role="form">
+                                    <div class="form-group">
+                                        <textarea class="form-control" rows="5" name="comment"></textarea>
+                                    </div>
+                                    <button name="parent" value="{{ review.cid }}" type="submit" class="btn btn-default">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="media">
+                <div class="media-left"> <a href="#"> <img alt="64x64" class="media-object" src="https://cdn4.iconfinder.com/data/icons/evil-icons-user-interface/64/pen-512.png"
+                            data-holder-rendered="true" style="width: 64px; height: 64px;"> </a> </div>
+                <div class="media-body">
+                    {% if sess.user %}
+                    <h4 class="media-heading">{{ sess.user }}<br/><small>Add a new comment</small></h4>
+                    <form method="POST" role="form">
+                        <div class="form-group">
+                            <textarea class="form-control" rows="5" name="review"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </form>
+                    {% else %}
+                    <h4 class="media-heading">Guest<br/><small>Login to add a review</small></h4>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+        <h2>Song Doesn't Exist</h2>
+        {% endif %}
+        <br/><hr><br/>
+    </div>
+
+    <script type="application/javascript">
+        $(document).ready(function () {
+        });
+
+        /* Initialize popovers */
+        {% if not sess.user %}
+        $("#signup").popover({
+            html: true,
+            content: function () {
+                return $('#signup-form-content').html();
+            }
+        });
+        $("#login").popover({
+            html: true,
+            content: function () {
+                return $('#login-form-content').html();
+            }
+        });
+        {% else %}
+        $("#profile").popover({
+            html: true,
+            content: function () {
+                return $('#profile-form-content').html();
+            }
+        });
+        {% endif %}
+
+        {% if message %}
+            alert("{{ message }}");
+        {% endif %}
+    </script>
+</body>
+
+</html>
